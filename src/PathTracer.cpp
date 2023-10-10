@@ -5,7 +5,20 @@
 #include "Ray.h"
 #include "Vec3.h"
 
+bool hit_sphere(const Point3& center, double radius, const Ray& r) {
+    Vec3 oc = r.get_origin() - center;
+    auto a = dot(r.get_direction(), r.get_direction());
+    auto b = 2.0 * dot(oc, r.get_direction());
+    auto c = dot(oc, oc) - radius * radius;
+    auto discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
 ColorRGB ray_color(const Ray& r) {
+
+    if (hit_sphere(Point3(0, 0, -1), 0.5, r))
+        return ColorRGB(255, 0, 0);
+
     Vec3 unit_direction = unit_vector(r.get_direction());
     auto a = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - a) * ColorRGB(255, 255, 255) + a * ColorRGB(0.5 * 255, 0.7 * 255, 255);
@@ -26,7 +39,7 @@ int main() {
     auto focal_length = 1.0;
     auto viewport_height = 2.0;
     auto viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
-    auto camera_center = point3(0, 0, 0);
+    auto camera_center = Point3(0, 0, 0);
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
     auto viewport_u = Vec3(viewport_width, 0, 0);
