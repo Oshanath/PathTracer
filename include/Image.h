@@ -8,6 +8,24 @@ struct ColorRGB
     double r;
     double g;
     double b;
+
+    ColorRGB& operator+=(const ColorRGB& v) {
+        r += v.r;
+        g += v.g;
+        b += v.b;
+        return *this;
+    }
+
+    ColorRGB& operator*=(double t) {
+        r *= t;
+        g *= t;
+        b *= t;
+        return *this;
+    }
+
+    ColorRGB& operator/=(double t) {
+        return *this *= 1 / t;
+    }
 };
 
 inline ColorRGB operator*(double t, const ColorRGB& v) {
