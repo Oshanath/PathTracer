@@ -22,7 +22,7 @@ public:
             for (int i = 0; i < image_width; ++i) {
 
                 const Interval intensity(0.0, 0.999);
-                ColorRGB pixel_color(0, 0, 0);
+                Color pixel_color(0, 0, 0);
 
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
                     Ray r = get_ray(i, j);
@@ -32,7 +32,7 @@ public:
                 pixel_color /= samples_per_pixel;
 
                 // Apply the linear to gamma transform.
-                pixel_color = ColorRGB(
+                pixel_color = Color(
                     linear_to_gamma(pixel_color.r),
                     linear_to_gamma(pixel_color.g),
                     linear_to_gamma(pixel_color.b)
@@ -82,26 +82,26 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    ColorRGB ray_color(const Ray& r, int depth, const Hittable& world) const {
+    Color ray_color(const Ray& r, int depth, const Hittable& world) const {
 
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
-            return ColorRGB(0, 0, 0);
+            return Color(0, 0, 0);
 
         HitRecord rec;
 
         if (world.hit(r, Interval(0.001, infinity), rec)) {
 
             Ray scattered;
-            ColorRGB attenuation;
+            Color attenuation;
             if (rec.mat->scatter(r, rec, attenuation, scattered))
                 return attenuation * ray_color(scattered, depth - 1, world);
-            return ColorRGB(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
         Vec3 unit_direction = unit_vector(r.get_direction());
         auto a = 0.5 * (unit_direction.y() + 1.0);
-        return (1.0 - a) * ColorRGB(1.0, 1.0, 1.0) + a * ColorRGB(0.5, 0.7, 1.0);
+        return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
     }
 
     Ray get_ray(int i, int j) const {

@@ -10,14 +10,14 @@ public:
     virtual ~Material() = default;
 
     virtual bool scatter(
-        const Ray& r_in, const HitRecord& rec, ColorRGB& attenuation, Ray& scattered) const = 0;
+        const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const = 0;
 };
 
 class Lambertian : public Material {
 public:
-    Lambertian(const ColorRGB& a) : albedo(a) {}
+    Lambertian(const Color& a) : albedo(a) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, ColorRGB& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const override {
         auto scatter_direction = rec.normal + Vec3::random_unit_vector();
 
         // Catch degenerate scatter direction
@@ -30,14 +30,14 @@ public:
     }
 
 private:
-    ColorRGB albedo;
+    Color albedo;
 };
 
 class Metal : public Material {
 public:
-    Metal(const ColorRGB& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+    Metal(const Color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, ColorRGB& attenuation, Ray& scattered)
+    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered)
         const override {
         Vec3 reflected = Vec3::reflect(unit_vector(r_in.get_direction()), rec.normal);
         scattered = Ray(rec.p, reflected + fuzz * Vec3::random_unit_vector());
@@ -46,6 +46,6 @@ public:
     }
 
 private:
-    ColorRGB albedo;
+    Color albedo;
     double fuzz;
 };
