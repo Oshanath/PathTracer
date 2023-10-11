@@ -36,3 +36,4 @@ inline double random_double(double min, double max) {
 #include "Sphere.h"
 #include "Interval.h"
 #include "Camera.h"
+#include "Material.h"

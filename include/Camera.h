@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Util.h"
 #include "Image.h"
 #include "Hittable.h"
+#include "Material.h"
 
 class Camera {
 
@@ -10,6 +10,7 @@ public:
     double aspect_ratio = 1.0;  // Ratio of image width over height
     int    image_width = 100;  // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
+    int    max_depth = 10;   // Maximum number of ray bounces into scene
 
     void render(const Hittable& world) {
         initialize();
@@ -25,15 +26,16 @@ public:
 
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
                     Ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_depth, world);
                 }
                 
                 pixel_color /= samples_per_pixel;
 
-                ColorRGB final_color = ColorRGB(
-                    intensity.clamp(pixel_color.r),
-                    intensity.clamp(pixel_color.g),
-                    intensity.clamp(pixel_color.b)
+                // Apply the linear to gamma transform.
+                pixel_color = ColorRGB(
+                    linear_to_gamma(pixel_color.r),
+                    linear_to_gamma(pixel_color.g),
+                    linear_to_gamma(pixel_color.b)
                 );
 
                 image_ptr->write_color(j, i, pixel_color);
@@ -80,12 +82,21 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    ColorRGB ray_color(const Ray& r, const Hittable& world) const {
+    ColorRGB ray_color(const Ray& r, int depth, const Hittable& world) const {
+
+        // If we've exceeded the ray bounce limit, no more light is gathered.
+        if (depth <= 0)
+            return ColorRGB(0, 0, 0);
 
         HitRecord rec;
 
-        if (world.hit(r, Interval(0, infinity), rec)) {
-            return 0.5 * (ColorRGB(rec.normal.x(), rec.normal.y(), rec.normal.z()) + ColorRGB(1, 1, 1));
+        if (world.hit(r, Interval(0.001, infinity), rec)) {
+
+            Ray scattered;
+            ColorRGB attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth - 1, world);
+            return ColorRGB(0, 0, 0);
         }
 
         Vec3 unit_direction = unit_vector(r.get_direction());
