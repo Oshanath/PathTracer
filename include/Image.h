@@ -5,9 +5,9 @@
 
 struct ColorRGB
 {
-    int r;
-    int g;
-    int b;
+    double r;
+    double g;
+    double b;
 };
 
 inline ColorRGB operator*(double t, const ColorRGB& v) {

@@ -5,23 +5,34 @@
 #include "Ray.h"
 #include "Vec3.h"
 
-bool hit_sphere(const Point3& center, double radius, const Ray& r) {
+double hit_sphere(const Point3& center, double radius, const Ray& r) {
     Vec3 oc = r.get_origin() - center;
     auto a = dot(r.get_direction(), r.get_direction());
     auto b = 2.0 * dot(oc, r.get_direction());
     auto c = dot(oc, oc) - radius * radius;
     auto discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+    
+    if (discriminant < 0) {
+        return -1.0;
+    }
+    else {
+        return (-b - sqrt(discriminant)) / (2.0 * a);
+    }
 }
 
 ColorRGB ray_color(const Ray& r) {
 
-    if (hit_sphere(Point3(0, 0, -1), 0.5, r))
-        return ColorRGB(255, 0, 0);
+    auto t = hit_sphere(Point3(0, 0, -1), 0.5, r);
+
+    if (t > 0.0)
+    {
+        Vec3 N = unit_vector(r.at(t) - Vec3(0, 0, -1));
+        return 0.5 * ColorRGB(N.x() + 1, N.y() + 1, N.z() + 1);
+    }
 
     Vec3 unit_direction = unit_vector(r.get_direction());
     auto a = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - a) * ColorRGB(255, 255, 255) + a * ColorRGB(0.5 * 255, 0.7 * 255, 255);
+    return (1.0 - a) * ColorRGB(1.0, 1.0, 1.0) + a * ColorRGB(0.5, 0.7, 1.0);
 }
 
 int main() {

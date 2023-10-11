@@ -18,7 +18,7 @@ void Image::render() {
 
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
-            file << data[j][i].r << ' ' << data[j][i].g << ' ' << data[j][i].b << '\n';
+            file << int(255 * data[j][i].r) << ' ' << int(255 * data[j][i].g) << ' ' << int(255 * data[j][i].b) << '\n';
         }
     }
 
@@ -33,9 +33,9 @@ void Image::generate_test_gradient()
             auto g = double(j) / (image_height - 1);
             auto b = 0;
 
-            data[j][i].r = static_cast<int>(255.999 * r);
-            data[j][i].g = static_cast<int>(255.999 * g);
-            data[j][i].b = static_cast<int>(255.999 * b);
+            data[j][i].r = static_cast<int>(r);
+            data[j][i].g = static_cast<int>(g);
+            data[j][i].b = static_cast<int>(b);
         }
     }
 }
