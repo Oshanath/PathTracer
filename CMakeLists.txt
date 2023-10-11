@@ -14,7 +14,7 @@ project ("PathTracer")
 include_directories("include")
 
 # Add source to this project's executable.
-add_executable (PathTracer "src/PathTracer.cpp" "include/PathTracer.h" "src/Image.cpp" "include/Image.h" "include/Vec3.h" "include/Ray.h")
+add_executable (PathTracer "src/PathTracer.cpp" "include/PathTracer.h" "src/Image.cpp" "include/Image.h" "include/Vec3.h" "include/Ray.h" "include/Hittable.h" "include/Sphere.h" "include/HittableList.h" "include/Util.h" "include/Interval.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET PathTracer PROPERTY CXX_STANDARD 20)
