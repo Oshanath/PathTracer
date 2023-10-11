@@ -23,3 +23,4 @@ inline double degrees_to_radians(double degrees) {
 #include "HittableList.h"
 #include "Sphere.h"
 #include "Interval.h"
+#include "Camera.h"
