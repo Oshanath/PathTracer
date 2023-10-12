@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util.h"
+
 struct Color
 {
     double r;
@@ -22,6 +24,15 @@ struct Color
 
     Color& operator/=(double t) {
         return *this *= 1 / t;
+    }
+
+    inline static Color random()
+    {
+        return Color(random_double(), random_double(), random_double());
+    }
+
+    inline static Color random(double min, double max) {
+        return Color(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 
     friend Color operator*(double t, const Color& v);
