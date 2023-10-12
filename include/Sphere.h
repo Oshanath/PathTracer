@@ -5,10 +5,30 @@
 
 class Sphere : public Hittable {
 public:
+    // Stationary Sphere
     Sphere(Point3 _center, double _radius, std::shared_ptr<Material> _material)
-        : center(_center), radius(_radius), mat(_material) {}
+        : center1(_center), radius(_radius), mat(_material), is_moving(false)
+    {
+        auto rvec = Vec3(radius, radius, radius);
+        bbox = aabb(center1 - rvec, center1 + rvec);
+    }
+
+    // Moving Sphere
+    Sphere(Point3 _center1, Point3 _center2, double _radius, std::shared_ptr<Material> _material)
+        : center1(_center1), radius(_radius), mat(_material), is_moving(true)
+    {
+        auto rvec = Vec3(radius, radius, radius);
+        aabb box1(_center1 - rvec, _center1 + rvec);
+        aabb box2(_center2 - rvec, _center2 + rvec);
+        bbox = aabb(box1, box2);
+
+        center_vec = _center2 - _center1;
+    }
+
+    aabb bounding_box() const override { return bbox; }
 
     inline bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
+        Point3 center = is_moving ? sphere_center(r.time()) : center1;
         Vec3 oc = r.get_origin() - center;
         auto a = r.get_direction().length_squared();
         auto half_b = dot(oc, r.get_direction());
@@ -36,7 +56,16 @@ public:
     }
 
 private:
-    Point3 center;
+    Point3 center1;
     double radius;
     std::shared_ptr<Material> mat;
+    bool is_moving;
+    Vec3 center_vec;
+    aabb bbox;
+
+    Point3 sphere_center(double time) const {
+        // Linearly interpolate from center1 to center2 according to time, where t=0 yields
+        // center1, and t=1 yields center2.
+        return center1 + time * center_vec;
+    }
 };

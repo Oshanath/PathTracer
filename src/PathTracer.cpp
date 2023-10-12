@@ -1,5 +1,7 @@
 ﻿#include "Util.h"
 
+#include <chrono>
+
 double hit_Sphere(const Point3& center, double radius, const Ray& r) {
     Vec3 oc = r.get_origin() - center;
     auto a = r.get_direction().length_squared();
@@ -33,7 +35,8 @@ int main() {
                     // diffuse
                     auto albedo = Color::random() * Color::random();
                     Sphere_Material = std::make_shared<Lambertian>(albedo);
-                    world.add(std::make_shared<Sphere>(center, 0.2, Sphere_Material));
+                    auto center2 = center + Vec3(0, random_double(0, .5), 0);
+                    world.add(std::make_shared<Sphere>(center, center2, 0.2, Sphere_Material));
                 }
                 else if (choose_mat < 0.95) {
                     // Metal
@@ -60,11 +63,13 @@ int main() {
     auto Material3 = std::make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
     world.add(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, Material3));
 
+    world = HittableList(std::make_shared<bvh_node>(world));
+
     Camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 1920;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 10;
     cam.max_depth = 50;
 
     cam.vfov = 20;
@@ -75,5 +80,10 @@ int main() {
     cam.defocus_angle = 0.6;
     cam.focus_dist = 10.0;
 
+    auto start = std::chrono::high_resolution_clock::now();
     cam.render(world);
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "rendering the scene took " << duration.count() << " seconds.\n";
 }
