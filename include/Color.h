@@ -2,57 +2,57 @@
 
 #include "Util.h"
 
-struct Color
+struct color
 {
     double r;
     double g;
     double b;
 
-    Color& operator+=(const Color& v) {
+    color& operator+=(const color& v) {
         r += v.r;
         g += v.g;
         b += v.b;
         return *this;
     }
 
-    Color& operator*=(double t) {
+    color& operator*=(double t) {
         r *= t;
         g *= t;
         b *= t;
         return *this;
     }
 
-    Color& operator/=(double t) {
+    color& operator/=(double t) {
         return *this *= 1 / t;
     }
 
-    inline static Color random()
+    inline static color random()
     {
-        return Color(random_double(), random_double(), random_double());
+        return color(random_double(), random_double(), random_double());
     }
 
-    inline static Color random(double min, double max) {
-        return Color(random_double(min, max), random_double(min, max), random_double(min, max));
+    inline static color random(double min, double max) {
+        return color(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 
-    friend Color operator*(double t, const Color& v);
-    friend Color operator*(const Color& v, double t);
-    friend Color operator*(const Color& v1, const Color& v2);
-    friend Color operator+(const Color& u, const Color& v);
+    friend color operator*(double t, const color& v);
+    friend color operator*(const color& v, double t);
+    friend color operator*(const color& v1, const color& v2);
+    friend color operator+(const color& u, const color& v);
 };
 
-inline Color operator*(double t, const Color& v) {
-    return Color(t * v.r, t * v.g, t * v.b);
+inline color operator*(double t, const color& v) {
+    return color(t * v.r, t * v.g, t * v.b);
 }
 
-inline Color operator*(const Color& v, double t) {
+inline color operator*(const color& v, double t) {
     return t * v;
 }
 
-inline Color operator+(const Color& u, const Color& v) {
-    return Color(u.r + v.r, u.g + v.g, u.b + v.b);
+inline color operator+(const color& u, const color& v) {
+    return color(u.r + v.r, u.g + v.g, u.b + v.b);
 }
 
-Color operator*(const Color& v1, const Color& v2) {
-    return Color(v1.r * v2.r, v1.g * v2.g, v1.b * v2.b);
+color operator*(const color& v1, const color& v2) {
+    return color(v1.r * v2.r, v1.g * v2.g, v1.b * v2.b);
 }

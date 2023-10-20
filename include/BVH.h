@@ -44,12 +44,12 @@ public:
         bbox = aabb(left->bounding_box(), right->bounding_box());
     }
 
-    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
+    bool hit(const Ray& r, interval ray_t, HitRecord& rec) const override {
         if (!bbox.hit(r, ray_t))
             return false;
 
         bool hit_left = left->hit(r, ray_t, rec);
-        bool hit_right = right->hit(r, Interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+        bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
 
         return hit_left || hit_right;
     }

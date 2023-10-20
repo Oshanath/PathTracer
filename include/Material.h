@@ -11,15 +11,16 @@ public:
     virtual ~Material() = default;
 
     virtual bool scatter(
-        const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const = 0;
+        const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered) const = 0;
 };
 
-class Lambertian : public Material {
+class lambertian : public Material {
 public:
-    Lambertian(std::shared_ptr<texture> a) : albedo(a) {}
+    lambertian(const color& a) : albedo(std::make_shared<solid_color>(a)) {}
+    lambertian(std::shared_ptr<texture> a) : albedo(a) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const override {
-        auto scatter_direction = rec.normal + Vec3::random_unit_vector();
+    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered) const override {
+        auto scatter_direction = rec.normal + vec3::random_unit_vector();
 
         // Catch degenerate scatter direction
         if (scatter_direction.near_zero())
@@ -38,10 +39,10 @@ class Metal : public Material {
 public:
     Metal(std::shared_ptr<texture> a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered)
+    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered)
         const override {
-        Vec3 reflected = Vec3::reflect(unit_vector(r_in.get_direction()), rec.normal);
-        scattered = Ray(rec.p, reflected + fuzz * Vec3::random_in_unit_sphere(), r_in.time());
+        vec3 reflected = vec3::reflect(unit_vector(r_in.get_direction()), rec.normal);
+        scattered = Ray(rec.p, reflected + fuzz * vec3::random_in_unit_sphere(), r_in.time());
         attenuation = albedo->value(rec.u, rec.v, rec.p);
         return (dot(scattered.get_direction(), rec.normal) > 0);
     }
@@ -55,22 +56,22 @@ class Dielectric : public Material {
 public:
     Dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered)
+    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered)
         const override {
-        attenuation = Color(1.0, 1.0, 1.0);
+        attenuation = color(1.0, 1.0, 1.0);
         double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
-        Vec3 unit_direction = unit_vector(r_in.get_direction());
+        vec3 unit_direction = unit_vector(r_in.get_direction());
         double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
         bool cannot_refract = refraction_ratio * sin_theta > 1.0;
-        Vec3 direction;
+        vec3 direction;
 
         if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
-            direction = Vec3::reflect(unit_direction, rec.normal);
+            direction = vec3::reflect(unit_direction, rec.normal);
         else
-            direction = Vec3::refract(unit_direction, rec.normal, refraction_ratio);
+            direction = vec3::refract(unit_direction, rec.normal, refraction_ratio);
 
         scattered = Ray(rec.p, direction, r_in.time());
         return true;

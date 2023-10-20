@@ -12,9 +12,9 @@ public:
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
     int    max_depth = 10;   // Maximum number of ray bounces into scene
     double vfov = 90;  // Vertical view angle (field of view)
-    Point3 lookfrom = Point3(0, 0, -1);  // Point camera is looking from
-    Point3 lookat = Point3(0, 0, 0);   // Point camera is looking at
-    Vec3   vup = Vec3(0, 1, 0);     // Camera-relative "up" direction
+    point3 lookfrom = point3(0, 0, -1);  // Point camera is looking from
+    point3 lookat = point3(0, 0, 0);   // Point camera is looking at
+    vec3   vup = vec3(0, 1, 0);     // Camera-relative "up" direction
 
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
@@ -29,8 +29,8 @@ public:
             std::cout << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; ++i) {
 
-                const Interval intensity(0.0, 0.999);
-                Color pixel_color(0, 0, 0);
+                const interval intensity(0.0, 0.999);
+                color pixel_color(0, 0, 0);
 
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
                     Ray r = get_ray(i, j);
@@ -40,7 +40,7 @@ public:
                 pixel_color /= samples_per_pixel;
 
                 // Apply the linear to gamma transform.
-                pixel_color = Color(
+                pixel_color = color(
                     linear_to_gamma(pixel_color.r),
                     linear_to_gamma(pixel_color.g),
                     linear_to_gamma(pixel_color.b)
@@ -57,13 +57,13 @@ public:
 
 private:
     int    image_height;   // Rendered image height
-    Point3 center;         // Camera center
-    Point3 pixel00_loc;    // Location of pixel 0, 0
-    Vec3   pixel_delta_u;  // Offset to pixel to the right
-    Vec3   pixel_delta_v;  // Offset to pixel below
-    Vec3   u, v, w;        // Camera frame basis vectors
-    Vec3   defocus_disk_u;  // Defocus disk horizontal radius
-    Vec3   defocus_disk_v;  // Defocus disk vertical radius
+    point3 center;         // Camera center
+    point3 pixel00_loc;    // Location of pixel 0, 0
+    vec3   pixel_delta_u;  // Offset to pixel to the right
+    vec3   pixel_delta_v;  // Offset to pixel below
+    vec3   u, v, w;        // Camera frame basis vectors
+    vec3   defocus_disk_u;  // Defocus disk horizontal radius
+    vec3   defocus_disk_v;  // Defocus disk vertical radius
     std::unique_ptr<Image> image_ptr;
 
     void initialize() {
@@ -84,8 +84,8 @@ private:
         v = cross(w, u);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        Vec3 viewport_u = viewport_width * u;    // Vector across viewport horizontal edge
-        Vec3 viewport_v = viewport_height * -v;  // Vector down viewport vertical edge
+        vec3 viewport_u = viewport_width * u;    // Vector across viewport horizontal edge
+        vec3 viewport_v = viewport_height * -v;  // Vector down viewport vertical edge
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel.
         pixel_delta_u = viewport_u / image_width;
@@ -103,26 +103,26 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    Color ray_color(const Ray& r, int depth, const Hittable& world) const {
+    color ray_color(const Ray& r, int depth, const Hittable& world) const {
 
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
-            return Color(0, 0, 0);
+            return color(0, 0, 0);
 
         HitRecord rec;
 
-        if (world.hit(r, Interval(0.001, infinity), rec)) {
+        if (world.hit(r, interval(0.001, infinity), rec)) {
 
             Ray scattered;
-            Color attenuation;
+            color attenuation;
             if (rec.mat->scatter(r, rec, attenuation, scattered))
                 return attenuation * ray_color(scattered, depth - 1, world);
-            return Color(0, 0, 0);
+            return color(0, 0, 0);
         }
 
-        Vec3 unit_direction = unit_vector(r.get_direction());
+        vec3 unit_direction = unit_vector(r.get_direction());
         auto a = 0.5 * (unit_direction.y() + 1.0);
-        return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
+        return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
     }
 
     Ray get_ray(int i, int j) const {
@@ -138,13 +138,13 @@ private:
         return Ray(ray_origin, ray_direction, ray_time);
     }
 
-    Point3 defocus_disk_sample() const {
+    point3 defocus_disk_sample() const {
         // Returns a random point in the camera defocus disk.
-        auto p = Vec3::random_in_unit_disk();
+        auto p = vec3::random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    Vec3 pixel_sample_square() const {
+    vec3 pixel_sample_square() const {
         // Returns a random point in the square surrounding a pixel at the origin.
         auto px = -0.5 + random_double();
         auto py = -0.5 + random_double();

@@ -21,7 +21,7 @@ public:
         image_width(width),
         image_height(height),
         filename(filename),
-        data(std::vector<std::vector<Color>>(image_height, std::vector<Color>(image_width))) {}
+        data(std::vector<std::vector<color>>(image_height, std::vector<color>(image_width))) {}
 
     inline ~Image() {}
 
@@ -56,11 +56,11 @@ public:
         }
     }
 
-    inline void write_color(int row, int col, Color pixel_color)
+    inline void write_color(int row, int col, color pixel_color)
     {
         data[row][col] = pixel_color;
     }
 
 private:
-    std::vector<std::vector<Color>> data;
+    std::vector<std::vector<color>> data;
 };

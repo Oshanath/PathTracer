@@ -2,15 +2,15 @@
 
 #include "Util.h"
 
-class Interval {
+class interval {
 public:
     double min, max;
 
-    Interval() : min(+infinity), max(-infinity) {} // Default interval is empty
+    interval() : min(+infinity), max(-infinity) {} // Default interval is empty
 
-    Interval(double _min, double _max) : min(_min), max(_max) {}
+    interval(double _min, double _max) : min(_min), max(_max) {}
 
-    Interval(const Interval& a, const Interval& b)
+    interval(const interval& a, const interval& b)
         : min(fmin(a.min, b.min)), max(fmax(a.max, b.max)) {}
 
     bool contains(double x) const {
@@ -31,13 +31,13 @@ public:
         return max - min;
     }
 
-    Interval expand(double delta) const {
+    interval expand(double delta) const {
         auto padding = delta / 2;
-        return Interval(min - padding, max + padding);
+        return interval(min - padding, max + padding);
     }
 
-    static const Interval empty, universe;
+    static const interval empty, universe;
 };
 
-const static Interval empty(+infinity, -infinity);
-const static Interval universe(-infinity, +infinity);
+const static interval empty(+infinity, -infinity);
+const static interval universe(-infinity, +infinity);

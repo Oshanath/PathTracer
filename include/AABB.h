@@ -4,34 +4,34 @@
 
 class aabb {
 public:
-    Interval x, y, z;
+    interval x, y, z;
 
     aabb() {} // The default AABB is empty, since Intervals are empty by default.
 
-    aabb(const Interval& ix, const Interval& iy, const Interval& iz)
+    aabb(const interval& ix, const interval& iy, const interval& iz)
         : x(ix), y(iy), z(iz) { }
 
-    aabb(const Point3& a, const Point3& b) {
+    aabb(const point3& a, const point3& b) {
         // Treat the two points a and b as extrema for the bounding box, so we don't require a
         // particular minimum/maximum coordinate order.
-        x = Interval(fmin(a[0], b[0]), fmax(a[0], b[0]));
-        y = Interval(fmin(a[1], b[1]), fmax(a[1], b[1]));
-        z = Interval(fmin(a[2], b[2]), fmax(a[2], b[2]));
+        x = interval(fmin(a[0], b[0]), fmax(a[0], b[0]));
+        y = interval(fmin(a[1], b[1]), fmax(a[1], b[1]));
+        z = interval(fmin(a[2], b[2]), fmax(a[2], b[2]));
     }
 
     aabb(const aabb& box0, const aabb& box1) {
-        x = Interval(box0.x, box1.x);
-        y = Interval(box0.y, box1.y);
-        z = Interval(box0.z, box1.z);
+        x = interval(box0.x, box1.x);
+        y = interval(box0.y, box1.y);
+        z = interval(box0.z, box1.z);
     }
 
-    const Interval& axis(int n) const {
+    const interval& axis(int n) const {
         if (n == 1) return y;
         if (n == 2) return z;
         return x;
     }
 
-    bool hit(const Ray& r, Interval ray_t) const {
+    bool hit(const Ray& r, interval ray_t) const {
         for (int a = 0; a < 3; a++) {
             auto invD = 1 / r.get_direction()[a];
             auto orig = r.get_origin()[a];
