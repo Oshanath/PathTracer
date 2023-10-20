@@ -45,3 +45,4 @@ inline int random_int(int min, int max) {
 #include "Color.h"
 #include "BVH.h"
 #include "Texture.h"
+#include "quad.h"

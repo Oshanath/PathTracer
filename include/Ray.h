@@ -2,14 +2,14 @@
 
 #include "vec3.h"
 
-class Ray {
+class ray {
 public:
-    Ray() {}
+    ray() {}
 
-    Ray(const point3& origin, const vec3& direction) : origin(origin), direction(direction), tm(0)
+    ray(const point3& origin, const vec3& direction) : origin(origin), direction(direction), tm(0)
     {}
 
-    Ray(const point3& origin, const vec3& direction, double time = 0.0)
+    ray(const point3& origin, const vec3& direction, double time = 0.0)
         : origin(origin), direction(direction), tm(time)
     {}
 

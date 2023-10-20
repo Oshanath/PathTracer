@@ -31,7 +31,7 @@ public:
         return x;
     }
 
-    bool hit(const Ray& r, interval ray_t) const {
+    bool hit(const ray& r, interval ray_t) const {
         for (int a = 0; a < 3; a++) {
             auto invD = 1 / r.get_direction()[a];
             auto orig = r.get_origin()[a];

@@ -27,7 +27,7 @@ public:
 
     aabb bounding_box() const override { return bbox; }
 
-    inline bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
+    inline bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         point3 center = is_moving ? sphere_center(r.time()) : center1;
         vec3 oc = r.get_origin() - center;
         auto a = r.get_direction().length_squared();

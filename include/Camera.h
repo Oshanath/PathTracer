@@ -33,7 +33,7 @@ public:
                 color pixel_color(0, 0, 0);
 
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
-                    Ray r = get_ray(i, j);
+                    ray r = get_ray(i, j);
                     pixel_color += ray_color(r, max_depth, world);
                 }
                 
@@ -103,7 +103,7 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    color ray_color(const Ray& r, int depth, const hittable& world) const {
+    color ray_color(const ray& r, int depth, const hittable& world) const {
 
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
@@ -113,7 +113,7 @@ private:
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
 
-            Ray scattered;
+            ray scattered;
             color attenuation;
             if (rec.mat->scatter(r, rec, attenuation, scattered))
                 return attenuation * ray_color(scattered, depth - 1, world);
@@ -125,7 +125,7 @@ private:
         return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
     }
 
-    Ray get_ray(int i, int j) const {
+    ray get_ray(int i, int j) const {
         // Get a randomly sampled camera ray for the pixel at location i,j.
 
         auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
@@ -135,7 +135,7 @@ private:
         auto ray_direction = pixel_sample - ray_origin;
         auto ray_time = random_double();
 
-        return Ray(ray_origin, ray_direction, ray_time);
+        return ray(ray_origin, ray_direction, ray_time);
     }
 
     point3 defocus_disk_sample() const {

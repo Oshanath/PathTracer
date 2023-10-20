@@ -44,7 +44,7 @@ public:
         bbox = aabb(left->bounding_box(), right->bounding_box());
     }
 
-    bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         if (!bbox.hit(r, ray_t))
             return false;
 
