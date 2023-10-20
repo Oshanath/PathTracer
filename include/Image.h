@@ -34,7 +34,7 @@ public:
 
         for (int j = 0; j < image_height; ++j) {
             for (int i = 0; i < image_width; ++i) {
-                file << int(255 * data[j][i].r) << ' ' << int(255 * data[j][i].g) << ' ' << int(255 * data[j][i].b) << '\n';
+                file << std::min(int(255 * data[j][i].r), 255) << ' ' << std::min(int(255 * data[j][i].g), 255) << ' ' << std::min(int(255 * data[j][i].b), 255) << '\n';
             }
         }
 

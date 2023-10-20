@@ -338,7 +338,7 @@ int main() {
     hittable_list world;
     Camera cam;
 
-    switch (0) {
+    switch (9) {
         case 1: random_spheres(world, cam);                 break;
         case 2: two_spheres(world, cam);                    break;
         case 3:  earth(world, cam);                         break;
@@ -348,7 +348,7 @@ int main() {
         case 7:  cornell_box(world, cam);                   break;
         case 8:  cornell_smoke(world, cam);                 break;
         case 9:  final_scene(world, cam, 800, 10000, 40);   break;
-        default: final_scene(world, cam, 400, 1000, 10);      break;
+        default: final_scene(world, cam, 400, 200, 10);      break;
     }
 
     world = hittable_list(std::make_shared<bvh_node>(world));
