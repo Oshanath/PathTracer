@@ -44,3 +44,4 @@ inline int random_int(int min, int max) {
 #include "Material.h"
 #include "Color.h"
 #include "BVH.h"
+#include "Texture.h"

@@ -2,6 +2,7 @@
 
 #include "Image.h"
 #include "Ray.h"
+#include "Texture.h"
 
 class HitRecord;
 
@@ -15,7 +16,7 @@ public:
 
 class Lambertian : public Material {
 public:
-    Lambertian(const Color& a) : albedo(a) {}
+    Lambertian(std::shared_ptr<texture> a) : albedo(a) {}
 
     bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const override {
         auto scatter_direction = rec.normal + Vec3::random_unit_vector();
@@ -25,28 +26,28 @@ public:
             scatter_direction = rec.normal;
 
         scattered = Ray(rec.p, scatter_direction, r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 private:
-    Color albedo;
+    std::shared_ptr<texture> albedo;
 };
 
 class Metal : public Material {
 public:
-    Metal(const Color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+    Metal(std::shared_ptr<texture> a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered)
         const override {
         Vec3 reflected = Vec3::reflect(unit_vector(r_in.get_direction()), rec.normal);
         scattered = Ray(rec.p, reflected + fuzz * Vec3::random_in_unit_sphere(), r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return (dot(scattered.get_direction(), rec.normal) > 0);
     }
 
 private:
-    Color albedo;
+    std::shared_ptr<texture> albedo;
     double fuzz;
 };
 
