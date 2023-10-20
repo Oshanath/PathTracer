@@ -189,18 +189,23 @@ void cornell_box(hittable_list& world, Camera& cam) {
     auto green = std::make_shared<lambertian>(color(.12, .45, .15));
     auto light = std::make_shared<diffuse_light>(color(15, 15, 15));
 
-    world.add(std::make_shared<quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green));
-    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red));
-    world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light));
-    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white));
-    world.add(std::make_shared<quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white));
-    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white));
+    // Cornell box sides
+    world.add(std::make_shared<quad>(point3(555, 0, 0), vec3(0, 0, 555), vec3(0, 555, 0), green));
+    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(0, 0, -555), vec3(0, 555, 0), red));
+    world.add(std::make_shared<quad>(point3(0, 555, 0), vec3(555, 0, 0), vec3(0, 0, 555), white));
+    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 0, -555), white));
+    world.add(std::make_shared<quad>(point3(555, 0, 555), vec3(-555, 0, 0), vec3(0, 555, 0), white));
 
+    // Light
+    world.add(std::make_shared<quad>(point3(213, 554, 227), vec3(130, 0, 0), vec3(0, 0, 105), light));
+
+    // Box 1
     std::shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
     box1 = std::make_shared<rotate_y>(box1, 15);
     box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
     world.add(box1);
 
+    // Box 2
     std::shared_ptr<hittable> box2 = box(point3(0, 0, 0), point3(165, 165, 165), white);
     box2 = std::make_shared<rotate_y>(box2, -18);
     box2 = std::make_shared<translate>(box2, vec3(130, 0, 65));
@@ -208,7 +213,7 @@ void cornell_box(hittable_list& world, Camera& cam) {
 
     cam.aspect_ratio = 1.0;
     cam.image_width = 600;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 64;
     cam.max_depth = 50;
     cam.background = color(0, 0, 0);
 
@@ -319,7 +324,7 @@ void final_scene(hittable_list& world, Camera& cam, int image_width, int samples
     )
     );
 
-    cam.aspect_ratio = 1.0;
+    cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width = image_width;
     cam.samples_per_pixel = samples_per_pixel;
     cam.max_depth = max_depth;
@@ -338,7 +343,7 @@ int main() {
     hittable_list world;
     Camera cam;
 
-    switch (9) {
+    switch (7) {
         case 1: random_spheres(world, cam);                 break;
         case 2: two_spheres(world, cam);                    break;
         case 3:  earth(world, cam);                         break;
@@ -347,8 +352,8 @@ int main() {
         case 6:  simple_light(world, cam);                  break;
         case 7:  cornell_box(world, cam);                   break;
         case 8:  cornell_smoke(world, cam);                 break;
-        case 9:  final_scene(world, cam, 800, 10000, 40);   break;
-        default: final_scene(world, cam, 400, 200, 10);      break;
+        case 9:  final_scene(world, cam, 1920, 10000, 40);   break;
+        default: final_scene(world, cam, 400, 100, 10);      break;
     }
 
     world = hittable_list(std::make_shared<bvh_node>(world));
