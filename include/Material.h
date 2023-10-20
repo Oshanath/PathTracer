@@ -39,9 +39,10 @@ private:
     std::shared_ptr<texture> albedo;
 };
 
-class Metal : public material {
+class metal : public material {
 public:
-    Metal(std::shared_ptr<texture> a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+    metal(color c, double f) : albedo(std::make_shared<solid_color>(c)), fuzz(f < 1 ? f : 1) {}
+    metal(std::shared_ptr<texture> a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
         const override {
@@ -56,9 +57,9 @@ private:
     double fuzz;
 };
 
-class Dielectric : public material {
+class dielectric : public material {
 public:
-    Dielectric(double index_of_refraction) : ir(index_of_refraction) {}
+    dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
     bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
         const override {
@@ -108,4 +109,20 @@ public:
 
 private:
     std::shared_ptr<texture> emit;
+};
+
+class isotropic : public material {
+public:
+    isotropic(color c) : albedo(std::make_shared<solid_color>(c)) {}
+    isotropic(std::shared_ptr<texture> a) : albedo(a) {}
+
+    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
+        const override {
+        scattered = ray(rec.p, vec3::random_unit_vector(), r_in.time());
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
+        return true;
+    }
+
+private:
+    std::shared_ptr<texture> albedo;
 };

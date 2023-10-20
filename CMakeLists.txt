@@ -19,7 +19,7 @@ set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS
 include_directories("include")
 
 # Add source to this project's executable.
-add_executable (PathTracer "src/PathTracer.cpp" "include/quad.h")
+add_executable (PathTracer "src/PathTracer.cpp" "include/quad.h" "include/ConstantMedium.h")
 target_link_libraries(PathTracer PUBLIC OpenMP::OpenMP_CXX)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
