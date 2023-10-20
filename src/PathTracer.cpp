@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-void random_spheres(HittableList& world, Camera& cam) {
+void random_spheres(hittable_list& world, Camera& cam) {
     
     auto checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
     world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
@@ -16,7 +16,7 @@ void random_spheres(HittableList& world, Camera& cam) {
             point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
-                std::shared_ptr<Material> Sphere_Material;
+                std::shared_ptr<material> Sphere_Material;
 
                 if (choose_mat < 0.8) {
                     // diffuse
@@ -65,7 +65,7 @@ void random_spheres(HittableList& world, Camera& cam) {
     cam.focus_dist = 10.0;
 }
 
-void two_spheres(HittableList& world, Camera& cam) {
+void two_spheres(hittable_list& world, Camera& cam) {
 
     auto checker = std::make_shared<checker_texture>(0.8, color(.2, .3, .1), color(.9, .9, .9));
 
@@ -86,7 +86,7 @@ void two_spheres(HittableList& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void earth(HittableList& world, Camera& cam) {
+void earth(hittable_list& world, Camera& cam) {
     auto earth_texture = std::make_shared<image_texture>("earthmap.jpg");
     auto earth_surface = std::make_shared<lambertian>(earth_texture);
     auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_surface);
@@ -105,18 +105,38 @@ void earth(HittableList& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
+void two_perlin_spheres(hittable_list& world, Camera& cam) {
+
+    auto pertext = std::make_shared<noise_texture>(4);
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+    world.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(13, 2, 3);
+    cam.lookat = point3(0, 0, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+}
+
 int main() {
     
-    HittableList world;
+    hittable_list world;
     Camera cam;
 
-    switch (3) {
-        case 1: random_spheres(world, cam); break;
-        case 2: two_spheres(world, cam);    break;
-        case 3:  earth(world, cam);         break;
+    switch (4) {
+        case 1: random_spheres(world, cam);         break;
+        case 2: two_spheres(world, cam);            break;
+        case 3:  earth(world, cam);                 break;
+        case 4:  two_perlin_spheres(world, cam);    break;
     }
 
-    world = HittableList(std::make_shared<bvh_node>(world));
+    world = hittable_list(std::make_shared<bvh_node>(world));
     auto start = std::chrono::high_resolution_clock::now();
     cam.render(world);
     auto stop = std::chrono::high_resolution_clock::now();

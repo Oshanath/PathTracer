@@ -4,22 +4,22 @@
 #include "Ray.h"
 #include "Texture.h"
 
-class HitRecord;
+class hit_record;
 
-class Material {
+class material {
 public:
-    virtual ~Material() = default;
+    virtual ~material() = default;
 
     virtual bool scatter(
-        const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered) const = 0;
+        const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const = 0;
 };
 
-class lambertian : public Material {
+class lambertian : public material {
 public:
     lambertian(const color& a) : albedo(std::make_shared<solid_color>(a)) {}
     lambertian(std::shared_ptr<texture> a) : albedo(a) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const override {
         auto scatter_direction = rec.normal + vec3::random_unit_vector();
 
         // Catch degenerate scatter direction
@@ -35,11 +35,11 @@ private:
     std::shared_ptr<texture> albedo;
 };
 
-class Metal : public Material {
+class Metal : public material {
 public:
     Metal(std::shared_ptr<texture> a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered)
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered)
         const override {
         vec3 reflected = vec3::reflect(unit_vector(r_in.get_direction()), rec.normal);
         scattered = Ray(rec.p, reflected + fuzz * vec3::random_in_unit_sphere(), r_in.time());
@@ -52,11 +52,11 @@ private:
     double fuzz;
 };
 
-class Dielectric : public Material {
+class Dielectric : public material {
 public:
     Dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, color& attenuation, Ray& scattered)
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered)
         const override {
         attenuation = color(1.0, 1.0, 1.0);
         double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;

@@ -4,13 +4,13 @@
 #include "Interval.h"
 #include "aabb.h"
 
-class Material;
+class material;
 
-class HitRecord {
+class hit_record {
   public:
     point3 p;
     vec3 normal;
-    std::shared_ptr<Material> mat;
+    std::shared_ptr<material> mat;
     double t;
     double u;
     double v;
@@ -22,11 +22,11 @@ class HitRecord {
     }
 };
 
-class Hittable {
+class hittable {
   public:
-    virtual ~Hittable() = default;
+    virtual ~hittable() = default;
 
-    virtual bool hit(const Ray& r, interval ray_t, HitRecord& rec) const = 0;
+    virtual bool hit(const Ray& r, interval ray_t, hit_record& rec) const = 0;
 
     virtual aabb bounding_box() const = 0;
 };

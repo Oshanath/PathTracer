@@ -19,7 +19,7 @@ public:
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
-    void render(const Hittable& world) {
+    void render(const hittable& world) {
         initialize();
 
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -103,13 +103,13 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    color ray_color(const Ray& r, int depth, const Hittable& world) const {
+    color ray_color(const Ray& r, int depth, const hittable& world) const {
 
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return color(0, 0, 0);
 
-        HitRecord rec;
+        hit_record rec;
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
 

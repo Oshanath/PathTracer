@@ -3,10 +3,10 @@
 #include "hittable.h"
 #include "vec3.h"
 
-class sphere : public Hittable {
+class sphere : public hittable {
 public:
     // Stationary Sphere
-    sphere(point3 _center, double _radius, std::shared_ptr<Material> _material)
+    sphere(point3 _center, double _radius, std::shared_ptr<material> _material)
         : center1(_center), radius(_radius), mat(_material), is_moving(false)
     {
         auto rvec = vec3(radius, radius, radius);
@@ -14,7 +14,7 @@ public:
     }
 
     // Moving Sphere
-    sphere(point3 _center1, point3 _center2, double _radius, std::shared_ptr<Material> _material)
+    sphere(point3 _center1, point3 _center2, double _radius, std::shared_ptr<material> _material)
         : center1(_center1), radius(_radius), mat(_material), is_moving(true)
     {
         auto rvec = vec3(radius, radius, radius);
@@ -27,7 +27,7 @@ public:
 
     aabb bounding_box() const override { return bbox; }
 
-    inline bool hit(const Ray& r, interval ray_t, HitRecord& rec) const override {
+    inline bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
         point3 center = is_moving ? sphere_center(r.time()) : center1;
         vec3 oc = r.get_origin() - center;
         auto a = r.get_direction().length_squared();
@@ -74,7 +74,7 @@ public:
 private:
     point3 center1;
     double radius;
-    std::shared_ptr<Material> mat;
+    std::shared_ptr<material> mat;
     bool is_moving;
     vec3 center_vec;
     aabb bbox;

@@ -6,11 +6,11 @@
 
 #include <algorithm>
 
-class bvh_node : public Hittable {
+class bvh_node : public hittable {
 public:
-    bvh_node(const HittableList& list) : bvh_node(list.objects, 0, list.objects.size()) {}
+    bvh_node(const hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) {}
 
-    bvh_node(const std::vector<std::shared_ptr<Hittable>>& src_objects, size_t start, size_t end) {
+    bvh_node(const std::vector<std::shared_ptr<hittable>>& src_objects, size_t start, size_t end) {
         auto objects = src_objects; // Create a modifiable array of the source scene objects
 
         int axis = random_int(0, 2);
@@ -44,7 +44,7 @@ public:
         bbox = aabb(left->bounding_box(), right->bounding_box());
     }
 
-    bool hit(const Ray& r, interval ray_t, HitRecord& rec) const override {
+    bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
         if (!bbox.hit(r, ray_t))
             return false;
 
@@ -57,25 +57,25 @@ public:
     aabb bounding_box() const override { return bbox; }
 
 private:
-    std::shared_ptr<Hittable> left;
-    std::shared_ptr<Hittable> right;
+    std::shared_ptr<hittable> left;
+    std::shared_ptr<hittable> right;
     aabb bbox;
 
     static bool box_compare(
-        const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b, int axis_index
+        const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b, int axis_index
     ) {
         return a->bounding_box().axis(axis_index).min < b->bounding_box().axis(axis_index).min;
     }
 
-    static bool box_x_compare(const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
+    static bool box_x_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
         return box_compare(a, b, 0);
     }
 
-    static bool box_y_compare(const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
+    static bool box_y_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
         return box_compare(a, b, 1);
     }
 
-    static bool box_z_compare(const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
+    static bool box_z_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
         return box_compare(a, b, 2);
     }
 };
