@@ -199,26 +199,24 @@ void cornell_box(hittable_list& world, Camera& cam, hittable_list& lights) {
     // Light
     world.add(std::make_shared<quad>(point3(213, 554, 227), vec3(130, 0, 0), vec3(0, 0, 105), light));
 
-    // Box 1
-    std::shared_ptr<material> aluminum = std::make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
-    std::shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), aluminum);
+    // Box
+    std::shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
     box1 = std::make_shared<rotate_y>(box1, 15);
     box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
     world.add(box1);
 
-    // Box 2
-    std::shared_ptr<hittable> box2 = box(point3(0, 0, 0), point3(165, 165, 165), white);
-    box2 = std::make_shared<rotate_y>(box2, -18);
-    box2 = std::make_shared<translate>(box2, vec3(130, 0, 65));
-    world.add(box2);
+    // Glass Sphere
+    auto glass = std::make_shared<dielectric>(1.5);
+    world.add(std::make_shared<sphere>(point3(190, 90, 190), 90, glass));
 
     // Light Sources
     auto m = std::shared_ptr<material>();
-    lights.add(make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), m));
+    lights.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), m));
+    lights.add(std::make_shared<sphere>(point3(190, 90, 190), 90, m));
 
     cam.aspect_ratio = 1.0;
     cam.image_width = 600;
-    cam.samples_per_pixel = 10;
+    cam.samples_per_pixel = 1000;
     cam.max_depth = 50;
     cam.background = color(0, 0, 0);
 
@@ -292,7 +290,8 @@ void final_scene(hittable_list& world, Camera& cam, hittable_list& lights, int i
     world.add(std::make_shared<bvh_node>(boxes1));
 
     auto light = std::make_shared<diffuse_light>(color(7, 7, 7));
-    world.add(std::make_shared<quad>(point3(123, 554, 147), vec3(300, 0, 0), vec3(0, 0, 265), light));
+    auto light_quad = std::make_shared<quad>(point3(123, 554, 147), vec3(300, 0, 0), vec3(0, 0, 265), light);
+    world.add(light_quad);
 
     auto center1 = point3(400, 400, 200);
     auto center2 = center1 + vec3(30, 0, 0);
@@ -329,7 +328,12 @@ void final_scene(hittable_list& world, Camera& cam, hittable_list& lights, int i
     )
     );
 
-    cam.aspect_ratio = 16.0 / 9.0;
+    // Light Sources
+    auto m = std::shared_ptr<material>();
+    lights.add(std::make_shared<quad>(point3(123, 554, 147), vec3(300, 0, 0), vec3(0, 0, 265), m));
+    lights.add(std::make_shared<sphere>(point3(360, 150, 145), 70, m));
+
+    cam.aspect_ratio = 1.0;
     cam.image_width = image_width;
     cam.samples_per_pixel = samples_per_pixel;
     cam.max_depth = max_depth;
@@ -349,7 +353,7 @@ int main() {
     Camera cam;
     hittable_list lights;
 
-    switch (7) {
+    switch (9) {
         case 1: random_spheres(world, cam, lights);                 break;
         case 2: two_spheres(world, cam, lights);                    break;
         case 3:  earth(world, cam, lights);                         break;
@@ -358,8 +362,8 @@ int main() {
         case 6:  simple_light(world, cam, lights);                  break;
         case 7:  cornell_box(world, cam, lights);                   break;
         case 8:  cornell_smoke(world, cam, lights);                 break;
-        case 9:  final_scene(world, cam, lights, 1920, 10000, 40);   break;
-        default: final_scene(world, cam, lights, 400, 100, 10);      break;
+        case 9:  final_scene(world, cam, lights, 600, 10000, 40);      break;
+        default: final_scene(world, cam, lights, 400, 100, 10);     break;
     }
 
     world = hittable_list(std::make_shared<bvh_node>(world));
