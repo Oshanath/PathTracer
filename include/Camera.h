@@ -44,7 +44,7 @@ public:
                     for (int s_i = 0; s_i < int(sqrt_spp); ++s_i) {
                         ray r = get_ray(i, j, s_i, s_j);
                         color c = ray_color(r, max_depth, world, lights);
-                        pixel_color += (c.r != c.r || c.g != c.g or c.b != c.b) ? color(0.0, 0.0, 0.0) : ray_color(r, max_depth, world, lights);
+                        pixel_color += (c.r != c.r || c.g != c.g || c.b != c.b) ? color(0.0, 0.0, 0.0) : c;
                     }
                 }
 
@@ -141,27 +141,26 @@ private:
         if (!world.hit(r, interval(0.001, infinity), rec))
             return background;
 
-        ray scattered;
-        color attenuation;
-        double pdf_val;
+        scatter_record srec;
         color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
-        if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_val))
+        if (!rec.mat->scatter(r, rec, srec))
             return color_from_emission;
 
-        hittable_list* light_ptr = (hittable_list*)&lights;
+        if (srec.skip_pdf) {
+            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, world, lights);
+        }
 
-        auto p0 = std::make_shared<hittable_pdf>(*(light_ptr->objects[0]), rec.p);
-        auto p1 = std::make_shared<cosine_pdf>(rec.normal);
-        mixture_pdf mixed_pdf(p0, p1);
+        auto light_ptr = std::make_shared<hittable_pdf>(lights, rec.p);
+        mixture_pdf p(light_ptr, srec.pdf_ptr);
 
-        scattered = ray(rec.p, mixed_pdf.generate(), r.time());
-        pdf_val = mixed_pdf.value(scattered.get_direction());
+        ray scattered = ray(rec.p, p.generate(), r.time());
+        auto pdf_val = p.value(scattered.get_direction());
 
         double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
         color sample_color = ray_color(scattered, depth - 1, world, lights);
-        color color_from_scatter = (attenuation * scattering_pdf * sample_color) / pdf_val;
+        color color_from_scatter = (srec.attenuation * scattering_pdf * sample_color) / pdf_val;
 
         return color_from_emission + color_from_scatter;
     }
