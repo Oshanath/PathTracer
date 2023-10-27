@@ -90,6 +90,18 @@ public:
             return -on_unit_sphere;
     }
 
+    inline static vec3 random_cosine_direction() {
+        auto r1 = random_double();
+        auto r2 = random_double();
+
+        auto phi = 2 * pi * r1;
+        auto x = cos(phi) * sqrt(r2);
+        auto y = sin(phi) * sqrt(r2);
+        auto z = sqrt(1 - r2);
+
+        return vec3(x, y, z);
+    }
+
     inline bool near_zero() const {
         // Return true if the vector is close to zero in all dimensions.
         auto s = 1e-8;

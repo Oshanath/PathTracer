@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-void random_spheres(hittable_list& world, Camera& cam) {
+void random_spheres(hittable_list& world, Camera& cam, hittable_list& lights) {
     
     auto checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
     world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
@@ -66,7 +66,7 @@ void random_spheres(hittable_list& world, Camera& cam) {
     cam.focus_dist = 10.0;
 }
 
-void two_spheres(hittable_list& world, Camera& cam) {
+void two_spheres(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     auto checker = std::make_shared<checker_texture>(0.8, color(.2, .3, .1), color(.9, .9, .9));
 
@@ -88,7 +88,7 @@ void two_spheres(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void earth(hittable_list& world, Camera& cam) {
+void earth(hittable_list& world, Camera& cam, hittable_list& lights) {
     auto earth_texture = std::make_shared<image_texture>("earthmap.jpg");
     auto earth_surface = std::make_shared<lambertian>(earth_texture);
     auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_surface);
@@ -108,7 +108,7 @@ void earth(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void two_perlin_spheres(hittable_list& world, Camera& cam) {
+void two_perlin_spheres(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     auto pertext = std::make_shared<noise_texture>(4);
     world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
@@ -128,7 +128,7 @@ void two_perlin_spheres(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void quads(hittable_list& world, Camera& cam) {
+void quads(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     // Materials
     auto left_red = std::make_shared<lambertian>(color(1.0, 0.2, 0.2));
@@ -158,7 +158,7 @@ void quads(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void simple_light(hittable_list& world, Camera& cam) {
+void simple_light(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     auto pertext = std::make_shared<noise_texture>(4);
     world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, std::make_shared<lambertian>(pertext)));
@@ -182,7 +182,7 @@ void simple_light(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void cornell_box(hittable_list& world, Camera& cam) {
+void cornell_box(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     auto red = std::make_shared<lambertian>(color(.65, .05, .05));
     auto white = std::make_shared<lambertian>(color(.73, .73, .73));
@@ -211,9 +211,13 @@ void cornell_box(hittable_list& world, Camera& cam) {
     box2 = std::make_shared<translate>(box2, vec3(130, 0, 65));
     world.add(box2);
 
+    // Light Sources
+    auto m = std::shared_ptr<material>();
+    lights.add(make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), m));
+
     cam.aspect_ratio = 1.0;
     cam.image_width = 600;
-    cam.samples_per_pixel = 64;
+    cam.samples_per_pixel = 10;
     cam.max_depth = 50;
     cam.background = color(0, 0, 0);
 
@@ -225,7 +229,7 @@ void cornell_box(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void cornell_smoke(hittable_list& world, Camera& cam) {
+void cornell_smoke(hittable_list& world, Camera& cam, hittable_list& lights) {
 
     auto red = std::make_shared<lambertian>(color(.65, .05, .05));
     auto white = std::make_shared<lambertian>(color(.73, .73, .73));
@@ -264,7 +268,7 @@ void cornell_smoke(hittable_list& world, Camera& cam) {
     cam.defocus_angle = 0;
 }
 
-void final_scene(hittable_list& world, Camera& cam, int image_width, int samples_per_pixel, int max_depth) {
+void final_scene(hittable_list& world, Camera& cam, hittable_list& lights, int image_width, int samples_per_pixel, int max_depth) {
 
     hittable_list boxes1;
     auto ground = std::make_shared<lambertian>(color(0.48, 0.83, 0.53));
@@ -342,23 +346,24 @@ int main() {
     
     hittable_list world;
     Camera cam;
+    hittable_list lights;
 
     switch (7) {
-        case 1: random_spheres(world, cam);                 break;
-        case 2: two_spheres(world, cam);                    break;
-        case 3:  earth(world, cam);                         break;
-        case 4:  two_perlin_spheres(world, cam);            break;
-        case 5:  quads(world, cam);                         break;
-        case 6:  simple_light(world, cam);                  break;
-        case 7:  cornell_box(world, cam);                   break;
-        case 8:  cornell_smoke(world, cam);                 break;
-        case 9:  final_scene(world, cam, 1920, 10000, 40);   break;
-        default: final_scene(world, cam, 400, 100, 10);      break;
+        case 1: random_spheres(world, cam, lights);                 break;
+        case 2: two_spheres(world, cam, lights);                    break;
+        case 3:  earth(world, cam, lights);                         break;
+        case 4:  two_perlin_spheres(world, cam, lights);            break;
+        case 5:  quads(world, cam, lights);                         break;
+        case 6:  simple_light(world, cam, lights);                  break;
+        case 7:  cornell_box(world, cam, lights);                   break;
+        case 8:  cornell_smoke(world, cam, lights);                 break;
+        case 9:  final_scene(world, cam, lights, 1920, 10000, 40);   break;
+        default: final_scene(world, cam, lights, 400, 100, 10);      break;
     }
 
     world = hittable_list(std::make_shared<bvh_node>(world));
     auto start = std::chrono::high_resolution_clock::now();
-    cam.render(world);
+    cam.render(world, lights);
     auto stop = std::chrono::high_resolution_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);

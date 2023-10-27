@@ -37,6 +37,7 @@ struct color
 
     friend color operator*(double t, const color& v);
     friend color operator*(const color& v, double t);
+    friend color operator/(const color& v, double t);
     friend color operator*(const color& v1, const color& v2);
     friend color operator+(const color& u, const color& v);
 };
@@ -47,6 +48,10 @@ inline color operator*(double t, const color& v) {
 
 inline color operator*(const color& v, double t) {
     return t * v;
+}
+
+inline color operator/(const color& v, double t) {
+    return 1/t * v;
 }
 
 inline color operator+(const color& u, const color& v) {

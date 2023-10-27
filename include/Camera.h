@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "Hittable.h"
 #include "Material.h"
+#include "pdf.h"
 
 class Camera {
 
@@ -20,7 +21,7 @@ public:
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
-    void render(const hittable& world) {
+    void render(const hittable& world, const hittable& lights) {
         initialize();
 
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -42,7 +43,8 @@ public:
                     #pragma omp parallel for
                     for (int s_i = 0; s_i < int(sqrt_spp); ++s_i) {
                         ray r = get_ray(i, j, s_i, s_j);
-                        pixel_color += ray_color(r, max_depth, world);
+                        color c = ray_color(r, max_depth, world, lights);
+                        pixel_color += (c.r != c.r || c.g != c.g or c.b != c.b) ? color(0.0, 0.0, 0.0) : ray_color(r, max_depth, world, lights);
                     }
                 }
 
@@ -60,7 +62,9 @@ public:
                 #pragma omp critical
                 {
                     counter++;
-                    std::cout << image_width * image_height - counter << " pixels remaining." << std::endl;
+
+                    if (counter % 1000 == 0)
+                        std::cout << image_width * image_height - counter << " pixels remaining." << std::endl;
                 }
             }
 
@@ -125,13 +129,13 @@ private:
         image_ptr = std::make_unique<Image>(image_width, image_height, "image.ppm");
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world) const {
+    color ray_color(const ray& r, int depth, const hittable& world, const hittable& lights) const {
+
+        hit_record rec;
 
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return color(0, 0, 0);
-
-        hit_record rec;
 
         // If the ray hits nothing, return the background color.
         if (!world.hit(r, interval(0.001, infinity), rec))
@@ -139,12 +143,25 @@ private:
 
         ray scattered;
         color attenuation;
-        color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+        double pdf_val;
+        color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
-        if (!rec.mat->scatter(r, rec, attenuation, scattered))
+        if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_val))
             return color_from_emission;
 
-        color color_from_scatter = attenuation * ray_color(scattered, depth - 1, world);
+        hittable_list* light_ptr = (hittable_list*)&lights;
+
+        auto p0 = std::make_shared<hittable_pdf>(*(light_ptr->objects[0]), rec.p);
+        auto p1 = std::make_shared<cosine_pdf>(rec.normal);
+        mixture_pdf mixed_pdf(p0, p1);
+
+        scattered = ray(rec.p, mixed_pdf.generate(), r.time());
+        pdf_val = mixed_pdf.value(scattered.get_direction());
+
+        double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+
+        color sample_color = ray_color(scattered, depth - 1, world, lights);
+        color color_from_scatter = (attenuation * scattering_pdf * sample_color) / pdf_val;
 
         return color_from_emission + color_from_scatter;
     }
